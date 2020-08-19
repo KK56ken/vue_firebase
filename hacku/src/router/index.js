@@ -1,23 +1,34 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import HelloWorld from '../components/HelloWorld'
+import Signup from '../components/Signup'
+import Signin from '../components/Signin'
+import firebase from 'firebase'
 
 Vue.use(VueRouter)
 
-  const routes = [
+const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
+    path: '*',
+    redirect: 'Signin'
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path: '/',
+    name: 'HelloWorld',
+    component: HelloWorld,
+    meta: {requiresAuth: true}
+  },
+  {
+    path: '/Signup',
+    name: 'Signup',
+    component: Signup
+  },
+  {
+    path: '/Signin',
+    name: 'Signin',
+    component: Signin
   }
+
 ]
 
 const router = new VueRouter({
@@ -25,5 +36,27 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+
+
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  if (requiresAuth) {
+    // このルートはログインされているかどうか認証が必要です。
+    // もしされていないならば、ログインページにリダイレクトします。
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (user) {
+        next()
+      } else {
+        next({
+          path: '/Signin',
+          query: { redirect: to.fullPath }
+        })
+      }
+    })
+  } else {
+    next() // next() を常に呼び出すようにしてください!
+  }
+})
+
 
 export default router
