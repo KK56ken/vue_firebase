@@ -4,8 +4,10 @@ WORKDIR /app
 
 RUN apk update && \
     npm install -g \
-           @vue/cli \
-           firebase-tools && \
+    firebase-tools && \
+    npm install --save firebase && \
     rm -rf /var/lib/apt/lists/*
 
-CMD ["/bin/ash"]
+WORKDIR /app/hacku
+
+CMD [ "npm", "run" ,"serve" ]
