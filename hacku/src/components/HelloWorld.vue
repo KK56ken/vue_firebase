@@ -73,6 +73,8 @@
       this.db = firebase.firestore()
 
       var _this = this
+
+
       // todos コレクションを監視する
       this.db.collection('todos').onSnapshot(function (querySnapshot) {
         _this.todos = []
